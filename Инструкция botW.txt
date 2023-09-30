@@ -1,0 +1,71 @@
+t.me/First_Gus_Bot
+
+name for your bot: Magic Bot
+username: First_Gus_Bot
+Use this token to access the HTTP API:
+5890018206:AAHzVz2TCPqbC-k3yMXzril6wPeSy-5P1DQ
+
+Your user ID: 542548912
+Current chat ID: 542548912
+
+For a description of the Bot API, see this page: https://core.telegram.org/bots/api
+________________________________________________________________________________________
+t.me/Second_Gus_Bot.
+
+name for your bot: Test Bot
+username: Second_Gus_Bot 
+Use this token to access the HTTP API:
+6187495934:AAFjKWQsKovh7JTeX9jogxZq4NRYc3DnRhE
+
+For a description of the Bot API, see this page: https://core.telegram.org/bots/api
+________________________________________________________________________________________
+
+cd C:\Users\hp\botW                       -изменение пути к файлу
+cd C:\Users\user\botW   - на работе  
+
+python bot.py
+python botW.py
+---------------------------------------------------------------------------------------
+Python -V   проверка версии
+python - - version 
+
+python3.10.4 -m venv venv
+
+python -m pip install --upgrade pip
+python -m venv venv             - установка виртуального окруженмя
+venv\Scripts\activate.bat     - активация виртуального окружения
+
+python -m venv double_env
+double_env\Scripts\activate.bat
+
+deactivate                      - выход из виртуального окружения
+
+pip list   -проверка библиотеки
+
+pip install aiogram
+pip uninstall aiogram   удаление  
+
+pip install -U --pre aiogram    3 третья версия
+pip install --upgrade pip aiogram
+python -m pip install --upgrade pip
+
+pip install Env
+pip install environs
+pip install dataclasses
+pip install pydantic
+pip install logging
+-----------------------------------------------------------------------------------------
+pip install pyTelegramBotAPI 
+pip install telebot
+
+pip install wikipedia - для википедии
+pip install random
+-------------------------------------------------------------------------------------------
+переменная окружения в Powershell Windows:
+
+$Env:BOT_TOKEN=5890018206:AAHzVz2TCPqbC-k3yMXzril6wPeSy-5P1DQ   - как в уроке
+
+$Env:BOT_TOKEN="5890018206:AAHzVz2TCPqbC-k3yMXzril6wPeSy-5P1DQ"    - как надо
+
+echo $Env:BOT_TOKEN   проверка переменной
+
