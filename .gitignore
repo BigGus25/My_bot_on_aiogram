@@ -1,0 +1,17 @@
+# Игнорируем все файлы с расширением .txt
+.txt
+.env
+
+
+Инструкция_botW
+Инструкция_botW_гит
+
+
+# Игнорируем папки "__pycache__" и "venv/"
+__pycache__/
+venv/
+.mypy_cache/
+.vscode/
+venv/
+
+
