@@ -17,6 +17,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.memory import MemoryStorage
 
+from lists.fun_wiki import getwiki
+
 # 06/07/2024 ___________________ФОТО_______________________________________________________________________________________________  
 from aiogram.types import Message, FSInputFile, InputFile  # для сохранения фото 07/07/2024
 import os
@@ -27,15 +29,12 @@ all_media_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'all_me
 from config_reader import config
 #from config_data.config import load_config  # загрузка файла конфиг чтоб считать АПИ бота, это из курса
 
-#config = load_config(r'C:\Users\hp\botW.env') # для дома
-#config = load_config(r'C:\Users\user\botW.env') # для работы
-
-from keyboards.keyboards import (yes_no_kb, choice1_kb, choice2_kb, choice3_kb, fillform_kb)    # импортируем файл с клавиатурами
+from keyboards.keyboards import (yes_no_kb, choice1_kb, choice2_kb, choice3_kb, choice4_kb, fillform_kb, wiki_out)    # импортируем файл с клавиатурами
 from keyboards.keyboards import (markup1, markup2, markup3)
 # импорт списков из файла list
-from lists.list import (answer_yes_list, answer_YES_list1, answer_YES_list2, answer_NO_list1, answer_NO_list2,
+from lists.list import (answer_yes_list, answer_YES_list1, answer_YES_list2, answer_NO_list1, answer_NO_list2,  # Здесь выбирается из какого файла тащить листы
                         answer_magic_ball, Hello_list, Goodbye_list, answer_GoGame_list, answer_OutGame_list,
-                        answer_pnh_list, answer_pes_list, stop_list, Good_list, answer_krys_list, anketa_list, help_list)
+                        answer_pnh_list, answer_pes_list, stop_list, Good_list, answer_krys_list, anketa_list, help_list, wiki_list)
 
 #session = AiohttpSession(proxy="http://proxy.server:3128")                                     #________________________________________ это для сервера!!!
 
@@ -138,7 +137,7 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
                               'жми команду /weather', reply_markup=choice2_kb)
         await state.clear()                                                                     # Сбрасываем состояние
 
-@dp.message(Command(commands='cancel'), StateFilter(default_state)) # 12/06/2024 Добавил cancel, чтоб всегда можно было выйти всегда. не пойму почему раньше так не сделал
+@dp.message(Command(commands='cancel'), StateFilter(default_state)) # 12/06/2024 Добавил cancel, чтоб всегда можно было выйти
 @dp.message(Text(text=Goodbye_list, ignore_case=True), StateFilter(default_state))             #сработает на прощание
 @dp.message(Text(text=stop_list, ignore_case=True), StateFilter(default_state))
 #@dp.message(Text(text=answer_OutGame_list, ignore_case=True), StateFilter(default_state))      #сработает на просьбу выйти из игры
@@ -218,7 +217,7 @@ async def warning_not_name(message: Message):
 # Этот хэндлер будет срабатывать, если введен корректный возраст и переводить в состояние выбора образования
 @dp.message(StateFilter(FSMFillForm.fill_age), lambda x: x.text.isdigit() and 1 <= int(x.text) <= 120)
 async def process_age_sent(message: Message, state: FSMContext):
-    await state.update_data(age=message.text)                                                    # Cохраняем возраст в хранилище по ключу "age"\
+    await state.update_data(age=message.text)                                                    # Cохраняем возраст в хранилище по ключу "age"
     await message.answer(text='Спасибо!\nУкажи свой пол', reply_markup=markup3)
     await state.set_state(FSMFillForm.fill_gender)  # Устанавливаем состояние ожидания выбора пола 
  
@@ -230,7 +229,7 @@ async def warning_not_age(message: Message):
              'Попробуй еще раз\n\n'
              'Если хочешь прервать заполнение анкеты - отправь команду /cancel')
              
-# 20/07/2024 ___________________SEX_______________________________________________________________________________________________
+# 20/07/2024 ___________________Выбор пола_______________________________________________________________________________________________
 # Этот хэндлер будет срабатывать на нажатие кнопки при
 # выборе пола и переводить в состояние отправки фото
 #@dp.callback_query(StateFilter(FSMFillForm.fill_gender), F.data.in_(['male', 'female', 'undefined_gender']))
@@ -249,7 +248,7 @@ async def warning_not_gender(message: Message):
     await message.answer(
         text='Пожалуйста, пользуйся кнопками при выборе пола\n\n'
              'Если хочешь прервать заполнение анкеты - отправь команду /cancel')
-# 20/07/2024 ___________________SEX_______________________________________________________________________________________________
+# 20/07/2024 ___________________Выбор пола_______________________________________________________________________________________________
  
 # 06/07/2024 ___________________ФОТО_______________________________________________________________________________________________
 # Этот хэндлер будет срабатывать, если отправлено фото и переводить в состояние выбора образования 
@@ -271,22 +270,9 @@ async def warning_not_photo(message: Message, state: FSMContext):
     answer = message.text.lower();
     if answer in ["в другой раз", "без фото", "не хочу отправлять", "не хочу отправлять фото", "не отправлю", "давай без фото", "не хочу", "не буду", "да ну", "не загружу", "хм"]:
         # Отправляем стандартное фото и получаем file_id
-        #__1_______________
-        #photo_message = await bot.send_photo(message.chat.id, photo=open('avatar1.png', 'rb')) # не работает, может URL вставить
-        #__2_______________
         photo_file = FSInputFile(path=os.path.join(all_media_dir, 'avatar1.png'))
         photo_message =await bot.send_photo(message.chat.id, photo=photo_file)
-        # файлом или URL
-        #photo_url  = 'https://avatars.mds.yandex.net/i?id=f7db9440cebfe2991388e177c8c1b485b0168eea6904916f-4055877-images-thumbs&n=13' #19/07
-        #photo_message =await bot.send_photo(message.chat.id, photo=photo_url)
-        # или так
-        #photo_message= await message.answer_photo(message.chat.id, photo=photo_url)
-        #await message.answer(text='тогда вот твоя аватарка по умолчанию')
-        
-        #__3_______________
-        #with open('avatar1.png', 'rb') as photo:                                          # не работает, не знаю почему
-        #photo_message = await bot.send_photo(message.chat.id, photo=photo)
-                
+
         await state.update_data(
             #photo_unique_id=photo_message.file_unique_id,
             photo_id=photo_message.photo[-1].file_id  # Получаем file_id последнего фото в массиве
@@ -320,7 +306,7 @@ async def warning_not_education(message: Message):
 # Этот хэндлер будет срабатывать на отправку команды /showdata
 # и отправлять в чат данные анкеты, либо сообщение об отсутствии данных
 @dp.message(Command(commands=['showdata']), StateFilter(default_state))
-async def process_showdata_command(message: Message):
+async def process_showdata_command(message: Message, state: FSMContext):
     # Отправляем пользователю анкету, если она есть в "базе данных"
     if message.from_user.id in user_dict:
         #await message.answer( # 06/07 заккоментил
@@ -371,17 +357,47 @@ async def process_play_press(callback: CallbackQuery, state: FSMContext):
         await state.clear()
         await callback.message.edit_text(text='на вопрос: "Будут ещё вопросы?"\nты ответил - нет\nбольше не жми на клавиши', reply_markup=callback.message.reply_markup)
 
-@dp.message(FSMFillForm.fill_continue_game)                                                     # отвечать только кнопками, он не сработает пока хэндлер на слова работает
-async def warning_not_play_press(message: Message):
+@dp.message(FSMFillForm.fill_continue_game)                                                     
+async def warning_not_play_press(message: Message, state: FSMContext):
     await message.answer(text="Пожалуйста, пользуйтесь кнопками\n"
                               'Если вы хотите прервать игру - отправьте команду /cancel')
     await message.answer("\nБудут ещё вопросы?", reply_markup=markup2)
     await state.set_state(FSMFillForm.fill_continue_game)
+
+#_____________________________________ВИКИ__________________________________________
+# Этот хэндлер будет срабатывать на команду "/wiki"
+@dp.message(Command(commands=['wiki']), StateFilter(default_state))              #сработает на команду
+@dp.message(Text(text=wiki_list, ignore_case=True), StateFilter(default_state))
+async def process_wiki_start(message: Message, state: FSMContext):
+    logging.info(f'Пользователь {message.from_user.id} отправил: {message.text}')
+    answer = message.text.lower(); #пока не используется
+
+    await message.answer('Понял. Перевожу на вики.\nОтправь мне любое слово, и я найду его значение на Wikipedia.\nЧтобы выйти, введи: [/stop, /hare, /out].', reply_markup=wiki_out)
+    await state.set_state(FSMFillForm.fill_wiki) # cостояние перехода в вики
+
+@dp.message(StateFilter(FSMFillForm.fill_wiki))
+async def process_wiki_continue(message: Message, state: FSMContext):
+    logging.info(f'Пользователь {message.from_user.id} отправил: {message.text}')
+    
+    answer = message.text.lower(); #пока не используется
+
+    if answer in stop_list or answer == "out wiki" or answer == "/stop" or answer == "/hare" or answer == "/out" or answer in answer_NO_list1 or answer in answer_OutGame_list or answer in stop_list:
+        await message.answer("\nТопай в начало", reply_markup=choice2_kb);
+        await state.clear()
+    elif answer in answer_pnh_list:
+        await message.reply(text='[(in_wiki)]\nОхренел? пшел вон отсюда!!!\n', reply_markup=choice2_kb);
+    elif answer in Good_list:
+        await message.reply(text='[(in_wiki)]\nТы меня таким сделал!\nВсё это благодаря Тебе!\nТы потрясающий!\n', reply_markup=choice2_kb);  
+    else:
+        await message.answer(getwiki(message.text), reply_markup=wiki_out)
+        await state.set_state(FSMFillForm.fill_wiki) # cостояние перехода в эту же функцию
+#__________________________________Конец___ВИКИ__________________________________________
 #_______________________________________________________________________________________________________________________________________________________________________________
 # Этот хэндлер будет срабатывать на любые сообщения,
 # кроме тех для которых есть отдельные хэндлеры, вне состояний
 @dp.message(StateFilter(default_state))
 async def send_echo(message: Message, state: FSMContext):
+    logging.info(f'Пользователь {message.from_user.id} отправил: {message.text}')
     answer = message.text.lower();
 
     if answer in answer_NO_list1 or answer in answer_NO_list2 or answer in answer_OutGame_list:
@@ -392,24 +408,26 @@ async def send_echo(message: Message, state: FSMContext):
     elif answer in answer_pnh_list:
         await message.reply(text='[(default_state)]\nОхренел? пшел вон отсюда!!!\n', reply_markup=choice2_kb);  
     elif answer in Good_list:
-        await message.reply(text='[(default_state)]\nТы меня таким сделал!\nВсё это благодаря Тебе!\nТы потрясающий!\n', reply_markup=choice2_kb);
+        await message.reply(text='[(default_state)]\nТы меня таким сделал!\nВсё это благодаря Тебе!\nТы потрясающий!\n', reply_markup=choice2_kb); 
     elif answer in answer_pes_list or answer in answer_krys_list:
         await message.reply(text='[(default_state)]\nАхахах! Сам такой!\n'
                                 'заполни анкетку! [да/нет][/fillform]?\n'
                                 'Или:\n'
                                 'Жми /play, чтобы начать игру.\n'
                                 'Жми /weather, чтобы посмотреть прогноз погоды.\n'
-                                'Жми /time, чтобы узнать время.\n', reply_markup=choice1_kb); 
+                                'Жми /time, чтобы узнать время.\n'
+                                'Жми /wiki, чтобы узнать значения\n'
+                                'слов из википедии.\n', reply_markup=choice1_kb); 
     else:
         await message.reply(text='[(default_state)]\nИзвини, моя твоя не понимать\n'
-                        "Выбери на клавиатуре что-нибудь\n", reply_markup=choice2_kb);                            
-#_________________________16/06/2024   
+                        "Выбери на клавиатуре что-нибудь\n", reply_markup=choice2_kb);  
+                          
+#_________________________16/06/2024____________________________________________________________________________________________________   
 
-# Этот хэндлер будет срабатывать на любые сообщения, которые отправляются из состояния просмотра данных
-# по факту он не работает никогда! в это состояние программа не заходит, не пойму только почему.
 @dp.message(StateFilter(FSMFillForm.fill_make_a_choice))
 #@dp.message(StateFilter(FSMFillForm.fill_make_a_choice), F.text.isalpha()) 
 async def send_echo(message: Message, state: FSMContext):
+    logging.info(f'Пользователь {message.from_user.id} отправил: {message.text}')
     answer = message.text.lower();
 
     if answer in answer_NO_list1 or answer in answer_NO_list2 or answer in answer_OutGame_list:
@@ -427,16 +445,13 @@ async def send_echo(message: Message, state: FSMContext):
                                 'Или:\n'
                                 'Жми /play, чтобы начать игру.\n'
                                 'Жми /weather, чтобы посмотреть прогноз погоды.\n'
-                                'Жми /time, чтобы узнать время.\n', reply_markup=choice1_kb); 
+                                'Жми /time, чтобы узнать время.\n'
+                                'Жми /wiki, чтобы узнать значения\n'
+                                'слов из википедии.\n', reply_markup=choice1_kb); 
     else:
         await message.reply(text='[(fill_make_a_choice)]\nИзвини, моя твоя не понимать\n'
-                        "Выбери на клавиатуре что-нибудь\n", reply_markup=choice2_kb); 
-                        
+                        "Выбери на клавиатуре что-нибудь\n", reply_markup=choice2_kb);                        
     await state.clear()  
-
-#_______________________________________________________________________________
-#место под вики
-#_______________________________________________________________________________
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
