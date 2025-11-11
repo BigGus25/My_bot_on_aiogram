@@ -1,7 +1,6 @@
 from aiogram.types import (CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup)
 from aiogram.types import (KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove)  # кнопки
 
-
 # Клавиатура для выбора образования (не рааботает отсюда)
 # Создаем объекты инлайн-кнопок 
 secondary_button = InlineKeyboardButton(text='Среднее', callback_data='secondary')
@@ -36,14 +35,19 @@ but_4: KeyboardButton = KeyboardButton(text='/fillform')
 but_5: KeyboardButton = KeyboardButton(text='/showdata')
 but_6: KeyboardButton = KeyboardButton(text='/weather')
 but_7: KeyboardButton = KeyboardButton(text='/time')
+but_8: KeyboardButton = KeyboardButton(text='/wiki')
+but_9: KeyboardButton = KeyboardButton(text='out wiki')
 
+choice1_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_1, but_2], [but_3, but_8], [but_6, but_7]], resize_keyboard=True)        # Создаем объект клавиатуры для выбора действия
+choice2_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_3, but_8], [but_6, but_7],[but_5, but_4]], resize_keyboard=True)
 
-choice1_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_2, but_1], [but_3, but_6, but_7]], resize_keyboard=True)        # Создаем объект клавиатуры для выбора действия
-choice2_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_3, but_6,  but_7], [but_4, but_5]], resize_keyboard=True) 
-choice3_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_5, but_4], [but_3, but_6, but_7]], resize_keyboard=True)
+choice3_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_5, but_4], [but_3, but_6, but_7]], resize_keyboard=True) # не используется
+choice4_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_3, but_6,  but_7], [but_4, but_5]], resize_keyboard=True) # не используется 
 
-fillform_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_4]], resize_keyboard=True) 
+wiki_out: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_9]], resize_keyboard=True)   # Создаем объект клавиатуры для выхода из вики
 
-yes_no_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_2, but_1]], resize_keyboard=True)                  # Создаем объект клавиатуры для ответа играть/не играть
+fillform_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_4]], resize_keyboard=True)  # Создаем объект клавиатуры для заполнения своих данных
+
+yes_no_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[but_2, but_1]], resize_keyboard=True)  # Создаем объект клавиатуры для ответа играть/не играть
 
 

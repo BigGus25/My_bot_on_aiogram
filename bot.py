@@ -29,15 +29,12 @@ all_media_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'all_me
 from config_reader import config
 #from config_data.config import load_config  # загрузка файла конфиг чтоб считать АПИ бота, это из курса
 
-#config = load_config(r'C:\Users\hp\botW.env') # для дома
-#config = load_config(r'C:\Users\user\botW.env') # для работы
-
-from keyboards.keyboards import (yes_no_kb, choice1_kb, choice2_kb, choice3_kb, fillform_kb)    # импортируем файл с клавиатурами
+from keyboards.keyboards import (yes_no_kb, choice1_kb, choice2_kb, choice3_kb, choice4_kb, fillform_kb, wiki_out)    # импортируем файл с клавиатурами
 from keyboards.keyboards import (markup1, markup2, markup3)
 # импорт списков из файла list
-from lists.list import (answer_yes_list, answer_YES_list1, answer_YES_list2, answer_NO_list1, answer_NO_list2,
+from lists.list import (answer_yes_list, answer_YES_list1, answer_YES_list2, answer_NO_list1, answer_NO_list2,  # Здесь выбирается из какого файла тащить листы
                         answer_magic_ball, Hello_list, Goodbye_list, answer_GoGame_list, answer_OutGame_list,
-                        answer_pnh_list, answer_pes_list, stop_list, Good_list, answer_krys_list, anketa_list, help_list)
+                        answer_pnh_list, answer_pes_list, stop_list, Good_list, answer_krys_list, anketa_list, help_list, wiki_list)
 
 #session = AiohttpSession(proxy="http://proxy.server:3128")                                     #________________________________________ это для сервера!!!
 
@@ -66,6 +63,7 @@ class FSMFillForm(StatesGroup):
     fill_continue_game = State() # Состояние продолжение игры
     fill_make_a_choice = State() # Состояние выбора действия после игры
     #first_question = State()    # Состояние ожидания ответа для заполнения анкеты 20.07
+    fill_wiki = State() # Состояние получение информации от википедии 08.02.2025г
 
 #_________________________________HELP____________________________________________________________________________________________________
 @dp.message(Command(commands=["help"]), StateFilter(default_state))
@@ -273,22 +271,9 @@ async def warning_not_photo(message: Message, state: FSMContext):
     answer = message.text.lower();
     if answer in ["в другой раз", "без фото", "не хочу отправлять", "не хочу отправлять фото", "не отправлю", "давай без фото", "не хочу", "не буду", "да ну", "не загружу", "хм"]:
         # Отправляем стандартное фото и получаем file_id
-        #__1_______________
-        #photo_message = await bot.send_photo(message.chat.id, photo=open('avatar1.png', 'rb')) # не работает
-        #__2_______________
         photo_file = FSInputFile(path=os.path.join(all_media_dir, 'avatar1.png'))
         photo_message =await bot.send_photo(message.chat.id, photo=photo_file)
-        # файлом или URL
-        #photo_url  = 'https://avatars.mds.yandex.net/i?id=f7db9440cebfe2991388e177c8c1b485b0168eea6904916f-4055877-images-thumbs&n=13' #19/07/24
-        #photo_message =await bot.send_photo(message.chat.id, photo=photo_url)
-        # или так
-        #photo_message= await message.answer_photo(message.chat.id, photo=photo_url)
-        #await message.answer(text='тогда вот твоя аватарка по умолчанию')
-        
-        #__3_______________
-        #with open('avatar1.png', 'rb') as photo:                                          # не работает
-        #photo_message = await bot.send_photo(message.chat.id, photo=photo)
-                
+
         await state.update_data(
             #photo_unique_id=photo_message.file_unique_id,
             photo_id=photo_message.photo[-1].file_id  # Получаем file_id последнего фото в массиве
@@ -322,7 +307,7 @@ async def warning_not_education(message: Message):
 # Этот хэндлер будет срабатывать на отправку команды /showdata
 # и отправлять в чат данные анкеты, либо сообщение об отсутствии данных
 @dp.message(Command(commands=['showdata']), StateFilter(default_state))
-async def process_showdata_command(message: Message):
+async def process_showdata_command(message: Message, state: FSMContext):
     # Отправляем пользователю анкету, если она есть в "базе данных"
     if message.from_user.id in user_dict:
         #await message.answer( # 06/07 заккоментил
@@ -475,4 +460,3 @@ async def main():
 
 if __name__ == "__main__":  # эти две строки пока не понимаю
     asyncio.run(main())
-
